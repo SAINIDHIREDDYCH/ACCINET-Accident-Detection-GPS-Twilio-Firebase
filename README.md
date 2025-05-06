@@ -1,86 +1,147 @@
-# ACCINET-Accident-Detection-GPS-Twilio-Firebase
-# ACCINET: Accident Intervention Network
+# ACCINET: Accident Intervention Network (C++ + IoT Hardware Project)
 
-## Overview
+## Project Overview
 
-ACCINET is an IoT-based system designed to detect accidents and promptly send alerts to predefined contacts. It utilizes an MPU6050 accelerometer for accident detection, a NEO-6M GPS module for dynamic location tracking, an OLED display for real-time feedback, and WiFi for connectivity. The system sends SMS alerts using the Twilio API and logs data to Firebase, ensuring timely intervention and support.
+ACCINET is a hardware-integrated IoT system programmed in **C++**, designed to detect road accidents and immediately notify emergency contacts. It brings together multiple hardware components—sensors, GPS, display, and wireless modules—controlled via efficient and responsive **C++ code running on an ESP32 microcontroller**.
 
-## Features
+This project demonstrates how **C++ enables direct control over sensors, real-time processing, and internet communication** in embedded systems, making it ideal for safety-critical IoT applications.
 
-- **Accident Detection**: Monitors sudden changes in acceleration using an MPU6050 accelerometer.
-- **Dynamic GPS Tracking**: Uses a NEO-6M GPS module to provide real-time location data.
-- **OLED Display**: Displays system status, accelerometer data, and alert messages.
-- **WiFi Connectivity**: Connects to the internet to send alerts and update Firebase.
-- **Twilio API**: Sends SMS alerts to predefined emergency contacts.
-- **Firebase Integration**: Logs accident details and status updates in real-time.
-- **NTP Server**: Ensures accurate timestamping for logged data.
+##  Core Concept
 
-## Components
+ACCINET uses hardware components interfaced through **C++** code to:
 
-- **MPU6050 Accelerometer**: Detects sudden changes in motion.
-- **Adafruit SSD1306 OLED Display**: Shows real-time feedback and system status.
-- **NEO-6M GPS Module**: Provides dynamic location tracking.
-- **ESP32 Board**: Central processing unit with WiFi capabilities.
-- **Buzzer**: Alerts the user audibly in case of an accident.
-- **Push Button**: Allows manual intervention to cancel alerts.
-- **WiFi Module**: Enables internet connectivity for real-time data transmission.
+1. Detect accidents via motion sensors (MPU6050).
+2. Get the exact GPS location (NEO-6M).
+3. Show system status on an OLED screen.
+4. Trigger a buzzer alert.
+5. Allow manual alert cancellation via a push button.
+6. Send SMS alerts through the **Twilio API** using HTTP calls in C++.
+7. Log data to **Firebase Realtime Database** for cloud-based monitoring.
 
-## Getting Started
 
-### Prerequisites
+##  Hardware Components
 
-- ESP32 Development Board
-- MPU6050 Accelerometer
-- Adafruit SSD1306 OLED Display
-- NEO-6M GPS Module
-- Buzzer and Push Button
-- Arduino IDE with necessary libraries installed
+| Component                   | Description                                                        |
+| --------------------------- | ------------------------------------------------------------------ |
+| **ESP32 Development Board** | Main microcontroller running C++ code for sensor control and logic |
+| **MPU6050 Accelerometer**   | Detects sudden acceleration/deceleration to identify accidents     |
+| **NEO-6M GPS Module**       | Provides real-time latitude and longitude                          |
+| **Adafruit SSD1306 OLED**   | Displays sensor data, system status, and alerts                    |
+| **Buzzer**                  | Emits sound when accident is detected                              |
+| **Push Button**             | Used to manually cancel alerts                                     |
+| **WiFi (built into ESP32)** | Enables cloud integration and SMS communication via HTTP           |
 
-### Libraries Required
+---
 
-- Wire
-- Adafruit_GFX
-- Adafruit_SSD1306
-- MPU6050
-- WiFi
-- HTTPClient
-- base64
-- TinyGPS++
-- SoftwareSerial
+## How C++ Powers the Hardware
 
-### Installation
+Each hardware module is programmed and controlled using **C++**, leveraging its ability to work closely with low-level operations, memory management, and real-time performance.
 
-1. **Clone the Repository**:
-    ```sh
-    git clone https://github.com/yourusername/ACCINET-Accident-Detection-GPS-Twilio-Firebase.git
-    cd ACCINET-Accident-Detection-GPS-Twilio-Firebase
-    ```
+### What C++ Does in This Project:
 
-2. **Install Required Libraries**:
-   Install the necessary libraries via the Arduino Library Manager or manually from the given sources.
+* **Sensor Interfacing**: Reads acceleration data from the MPU6050 using I2C protocols via C++ `Wire` library.
+* **GPS Parsing**: Receives and parses GPS NMEA data using the `TinyGPS++` library written in C++.
+* **Display Control**: Draws text and graphics on OLED using `Adafruit_GFX` and `Adafruit_SSD1306` C++ libraries.
+* **Network Communication**: Uses `WiFi` and `HTTPClient` libraries in C++ to connect to the internet.
+* **Alerting via Twilio**: C++ code constructs HTTP requests, encodes credentials with `base64`, and sends SMS.
+* **Data Logging to Firebase**: Sends structured JSON data to the Firebase Realtime Database via HTTP POST using C++.
+* **Interrupt and State Handling**: Uses C++ condition checks and ISR (Interrupt Service Routines) for button presses.
 
-3. **Upload the Code**:
-   Open the provided code in Arduino IDE, configure your WiFi credentials and Twilio/Firebase settings, and upload the code to your ESP32 board.
 
-## Usage
+## Software Requirements
 
-1. **Power On the Device**: Ensure all components are properly connected and power on your ESP32 board.
-2. **Connect to WiFi**: The device will attempt to connect to the configured WiFi network.
-3. **Accident Detection**: The MPU6050 will monitor for sudden changes in acceleration.
-4. **Alert Generation**: Upon detecting an accident, the system will fetch the location from the GPS module and send SMS alerts via Twilio.
-5. **Data Logging**: Accident details and status updates will be logged to Firebase in real-time.
+* **Arduino IDE** (for writing, compiling, and uploading C++ code)
+* **Installed C++ Libraries**:
+
+  * `Wire`
+  * `MPU6050`
+  * `Adafruit_GFX`, `Adafruit_SSD1306`
+  * `TinyGPS++`
+  * `WiFi`, `HTTPClient`
+  * `base64`
+
+---
+
+## Getting Started (Hardware + C++)
+
+### 1. Connect the Hardware
+
+Connect components to the ESP32 according to the following:
+
+* **MPU6050** → I2C Pins (SCL/SDA)
+* **GPS** → Serial RX/TX
+* **OLED** → I2C
+* **Buzzer** → GPIO with transistor (if needed)
+* **Push Button** → GPIO with pull-down resistor
+
+### 2. Flash the C++ Code
+
+Open the code in Arduino IDE:
+
+* Configure WiFi SSID/PASSWORD, Twilio credentials, and Firebase URL.
+* Compile and upload the C++ code to the ESP32.
+
+### 3. Run the System
+
+* On boot, the system connects to WiFi.
+* If an accident is detected, the C++ program collects GPS data, displays it, triggers the buzzer, and sends alerts.
+* Data is logged to Firebase with timestamps using NTP.
+
+---
+
+##  Workflow (All in C++)
+
+```cpp
+void setup() {
+  initSensors();
+  connectWiFi();
+  initializeDisplay();
+  syncTimeWithNTP();
+}
+
+void loop() {
+  if (accidentDetected()) {
+    getGPSLocation();
+    triggerBuzzer();
+    sendSMSviaTwilio();
+    logToFirebase();
+  }
+  checkManualCancel();
+}
+```
+
+---
+
+## 📤 Output Example
+
+ **SMS Alert**:
+
+  ```
+  Accident Detected!
+  Location: https://maps.google.com/?q=12.9716,77.5946
+  Time: 10:42:31 AM
+  ```
+
+* **Firebase Log**:
+
+  ```json
+  {
+    "latitude": 12.9716,
+    "longitude": 77.5946,
+    "timestamp": "2025-05-06T10:42:31Z",
+    "status": "Accident Detected"
+  }
+  ```
 
 ## Contributing
 
-1. Fork the repository.
-2. Create your feature branch: `git checkout -b feature/AmazingFeature`
-3. Commit your changes: `git commit -m 'Add some AmazingFeature'`
-4. Push to the branch: `git push origin feature/AmazingFeature`
-5. Open a pull request.
+1. Fork the repo and add your feature using C++.
+2. Test with actual hardware setup.
+3. Submit a pull request with description and photos/videos of hardware test.
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License. See LICENSE for more information.
 
 ## Acknowledgements
 
@@ -88,4 +149,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - [Adafruit GFX Library](https://github.com/adafruit/Adafruit-GFX-Library)
 - [Twilio API](https://www.twilio.com/docs/usage/api)
 - [Firebase Realtime Database](https://firebase.google.com/docs/database)
-
